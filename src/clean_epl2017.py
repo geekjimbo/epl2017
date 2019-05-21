@@ -35,8 +35,14 @@ df_sorted = df_sorted.reset_index(drop=True)
 cols = ["round_number", "date", "location", "team_role", "team", "result"]
 df_sorted.columns = cols
 
+
+# Extract «goals» from «Result» field, both: «home» goals and «away» goals:
 # calc home goals
 df_sorted['home_goals'] = df_sorted.apply(lambda x: extract_goals( "Home Team", x['result']  ), axis=1)
 
 # calc away goals
 df_sorted['away_goals'] = df_sorted.apply(lambda x: extract_goals( "Away Team", x['result']  ), axis=1)
+
+
+# Step 3. Calculate the «points» won by each «Round Number, Team»
+

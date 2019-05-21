@@ -46,3 +46,17 @@ df_sorted['away_goals'] = df_sorted.apply(lambda x: extract_goals( "Away Team", 
 
 # Step 3. Calculate the «points» won by each «Round Number, Team»
 
+# function to calc_points
+# apply calc_points to dataset to create new data element called 'points'
+
+def calc_points(role, home_goals, away_goals):
+    result = 0
+    if home_goals == away_goals:
+        result = 1
+    if role == "Home Team":
+        if home_goals > away_goals:
+            result = 3
+    if role == "Away Team":
+        if away_goals > home_goals:
+            result = 3
+    return result

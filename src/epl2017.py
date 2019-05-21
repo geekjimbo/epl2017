@@ -11,6 +11,7 @@ class epl(object):
         _config = yaml.load( open( CONFIG_PATH ))
         dataset = _config['dev']['file_path_name']
         self.df = pd.read_csv(dataset)
+        self.target_path_name = _config['dev']['target_path_name']
 
 
     def extract_goals(self, role, goals_str):
@@ -64,7 +65,22 @@ class epl(object):
         df_sorted['home_goals'] = df_sorted.apply(lambda x: self.extract_goals( "Home Team", x['result']  ), axis=1)
 
         # calc away goals
-        df_sorted['away_goals'] = df_sorted.apply(lambda x: self.t extract_goals( "Away Team", x['result']  ), axis=1)
+        df_sorted['away_goals'] = df_sorted.apply(lambda x: self.extract_goals( "Away Team", x['result']  ), axis=1)
 
         # calc points
         df_sorted['points'] = df_sorted.apply(lambda x:  self.calc_points(x['team_role'], x['home_goals'] , x['away_goals']) , axis=1)
+
+        # calc cum sum
+        df_sorted['cum_sum'] = df_sorted.groupby('team')['points'].cumsum()
+
+        # calc rank
+        df_sorted["rank"] = df_sorted.groupby(['round_number'])['cum_sum'].rank(ascending=False, method='first').astype(int)
+
+        # select final data elements and data set 
+        cols = [ "round_number", "rank", "team"]
+        df_final = df_sorted[cols].sort_values(['round_number', 'rank', 'team'])
+
+        df_final.to_csv(self.target_path_name, index=False, sep=",")
+
+        return df_final
+
